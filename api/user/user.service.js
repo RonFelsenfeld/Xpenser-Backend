@@ -80,8 +80,8 @@ async function update(user) {
 
 async function add(user) {
   try {
-    const userToAdd = { ...user }
-    delete userToAdd._id
+    const userToAdd = { ...user, expenses: [] }
+
     const collection = await dbService.getCollection('users')
     await collection.insertOne(userToAdd)
     return userToAdd
