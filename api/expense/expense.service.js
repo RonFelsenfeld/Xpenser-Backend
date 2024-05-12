@@ -3,7 +3,6 @@ const { ObjectId } = mongodb
 
 import { dbService } from '../../services/db.service.js'
 import { logger } from '../../services/logger.service.js'
-// import { expenseService } from './expense.service.js'
 
 export const expenseService = {
   remove,

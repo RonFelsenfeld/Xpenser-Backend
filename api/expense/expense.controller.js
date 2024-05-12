@@ -1,9 +1,10 @@
+import { expenseService } from './expense.service.js'
 import { logger } from '../../services/logger.service.js'
 
 export async function getExpenses(req, res) {
   try {
     logger.debug('Getting expenses')
-    // const expenses = await expenseService.query()
+    const expenses = await expenseService.query()
     res.json(expenses)
   } catch (err) {
     logger.error('Failed to get expenses', err)
@@ -14,7 +15,7 @@ export async function getExpenses(req, res) {
 export async function getExpenseById(req, res) {
   try {
     const { expenseId } = req.params
-    // const expense = await expenseService.getById(expenseId)
+    const expense = await expenseService.getById(expenseId)
     res.json(expense)
   } catch (err) {
     logger.error('Failed to get expense', err)
@@ -25,7 +26,7 @@ export async function getExpenseById(req, res) {
 export async function addExpense(req, res) {
   try {
     const expense = req.body
-    // const addedExpense = await expenseService.add(expense)
+    const addedExpense = await expenseService.add(expense)
     res.json(addedExpense)
   } catch (err) {
     logger.error('Failed to add expense', err)
@@ -36,7 +37,7 @@ export async function addExpense(req, res) {
 export async function updateExpense(req, res) {
   try {
     const expense = req.body
-    // const updatedExpense = await expenseService.update(expense)
+    const updatedExpense = await expenseService.update(expense)
     res.json(updatedExpense)
   } catch (err) {
     logger.error('Failed to update expense', err)
@@ -47,7 +48,7 @@ export async function updateExpense(req, res) {
 export async function removeExpense(req, res) {
   try {
     const { expenseId } = req.params
-    // await expenseService.remove(expenseId)
+    await expenseService.remove(expenseId)
     res.send('Expense deleted')
   } catch (err) {
     logger.error('Failed to remove expense', err)

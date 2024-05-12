@@ -5,7 +5,11 @@ import express from 'express'
 import cookieParser from 'cookie-parser'
 
 import { logger } from './services/logger.service.js'
+import { setupAsyncLocalStorage } from './middlewares/setupAls.middleware.js'
+
 import { expenseRoutes } from './api/expense/expense.routes.js'
+import { authRoutes } from './api/auth/auth.routes.js'
+import { userRoutes } from './api/user/user.routes.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -30,6 +34,10 @@ if (process.env.NODE_ENV === 'production') {
   app.use(cors(corsOptions))
 }
 
+app.all('*', setupAsyncLocalStorage)
+
+app.use('/api/auth', authRoutes)
+app.use('/api/user', authRoutes)
 app.use('/api/expense', expenseRoutes)
 
 app.get('/**', (req, res) => {
@@ -40,6 +48,3 @@ const port = process.env.PORT || 3030
 server.listen(port, () => {
   logger.info('Server is running on port: ' + port)
 })
-
-// import { setupAsyncLocalStorage } from './middlewares/setupAls.middleware.js'
-// app.all('*', setupAsyncLocalStorage)
