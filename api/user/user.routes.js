@@ -4,7 +4,7 @@ import { getUser, getUsers, deleteUser, updateUser } from './user.controller.js'
 
 export const userRoutes = express.Router()
 
-router.get('/', getUsers)
-router.get('/:id', getUser)
-router.put('/:id', requireAuth, updateUser)
-router.delete('/:id', requireAuth, deleteUser)
+userRoutes.get('/', getUsers)
+userRoutes.get('/:id', getUser)
+userRoutes.put('/:id', requireAuth, updateUser)
+userRoutes.delete('/:id', requireAuth, deleteUser)

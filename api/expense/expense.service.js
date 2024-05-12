@@ -3,6 +3,7 @@ const { ObjectId } = mongodb
 
 import { dbService } from '../../services/db.service.js'
 import { logger } from '../../services/logger.service.js'
+import { utilService } from '../../services/util.service.js'
 
 export const expenseService = {
   remove,
@@ -12,59 +13,82 @@ export const expenseService = {
   update,
 }
 
-async function query() {
+async function query(userId) {
   try {
-    const collection = await dbService.getCollection('entities')
-    const entities = await collection.find().toArray()
-    return entities
+    const collection = await dbService.getCollection('users')
+    const user = await collection.findOne({ _id: new ObjectId(userId) })
+    return user.expenses
   } catch (err) {
-    logger.error('Cannot find entities', err)
+    logger.error('Cannot find expenses', err)
     throw err
   }
 }
 
-async function getById(entityId) {
+async function getById(expenseId, userId) {
   try {
-    const collection = await dbService.getCollection('entities')
-    const entity = collection.findOne({ _id: new ObjectId(entityId) })
-    return entity
+    const collection = await dbService.getCollection('users')
+    const user = await collection.findOne({ _id: new ObjectId(userId) })
+    const expense = user.expenses.find(e => e._id === expenseId)
+    return expense
   } catch (err) {
-    logger.error(`Cannot find entity ${entityId}`, err)
+    logger.error(`Cannot find expense ${expenseId}`, err)
     throw err
   }
 }
 
-async function remove(entityId) {
+async function remove(expenseId, userId) {
   try {
-    const collection = await dbService.getCollection('entities')
-    await collection.deleteOne({ _id: new ObjectId(entityId) })
+    const collection = await dbService.getCollection('users')
+    await collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $pull: { expenses: { _id: expenseId } } }
+    )
   } catch (err) {
-    logger.error(`Cannot remove entity ${entityId}`, err)
+    logger.error(`Cannot remove expense ${expenseId}`, err)
     throw err
   }
 }
 
-async function add(entity) {
+async function add(expense, userId) {
+  const expenseToSave = {
+    ...expense,
+    _id: utilService.makeId(),
+  }
+
   try {
-    const collection = await dbService.getCollection('entities')
-    await collection.insertOne(entity)
-    return entity
+    const collection = await dbService.getCollection('users')
+    await collection.updateOne(
+      { _id: new ObjectId(userId) },
+      { $push: { expenses: expenseToSave } }
+    )
+    return expenseToSave
   } catch (err) {
-    logger.error('Cannot add entity', err)
+    logger.error('Cannot add expense', err)
     throw err
   }
 }
 
-async function update(entity) {
+async function update(expense, userId) {
   try {
-    // ! Update only selected fields
-    const entityToSave = { ...entity }
+    const expenseToSave = {
+      _id: expense._id,
+      txt: expense.txt,
+      amount: expense.amount,
+      category: expense.category,
+      at: expense.at,
+      notes: expense.notes,
+    }
 
-    const collection = await dbService.getCollection('entities')
-    await collection.updateOne({ _id: new ObjectId(entity._id) }, { $set: entityToSave })
-    return entityToSave
+    const collection = await dbService.getCollection('users')
+    await collection.updateOne(
+      { _id: new ObjectId(userId), 'expenses._id': expense._id },
+      { $set: { 'expenses.$': expenseToSave } }
+    )
+
+    console.log(`expenseToSave`, expenseToSave)
+    return expenseToSave
   } catch (err) {
-    logger.error(`Cannot update entity ${entity._id}`, err)
+    logger.error(`Cannot update expense ${expense._id}`, err)
     throw err
   }
 }
