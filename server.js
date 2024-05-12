@@ -10,6 +10,7 @@ import { setupAsyncLocalStorage } from './middlewares/setupAls.middleware.js'
 import { expenseRoutes } from './api/expense/expense.routes.js'
 import { authRoutes } from './api/auth/auth.routes.js'
 import { userRoutes } from './api/user/user.routes.js'
+import { setupSocketAPI } from './services/socket.service.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -35,10 +36,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.all('*', setupAsyncLocalStorage)
-
 app.use('/api/auth', authRoutes)
-app.use('/api/user', authRoutes)
+app.use('/api/user', userRoutes)
 app.use('/api/expense', expenseRoutes)
+
+setupSocketAPI(server)
 
 app.get('/**', (req, res) => {
   res.sendFile(path.resolve('public/index.html'))
