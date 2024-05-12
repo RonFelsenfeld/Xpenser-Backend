@@ -1,5 +1,7 @@
 import { dbService } from '../../services/db.service.js'
 import { logger } from '../../services/logger.service.js'
+import { expenseService } from '../expense/expense.service.js'
+
 import mongodb from 'mongodb'
 const { ObjectId } = mongodb
 
@@ -80,7 +82,7 @@ async function update(user) {
 
 async function add(user) {
   try {
-    const userToAdd = { ...user, expenses: [] }
+    const userToAdd = { ...user, expenses: expenseService.createDemoExpenses() }
 
     const collection = await dbService.getCollection('users')
     await collection.insertOne(userToAdd)

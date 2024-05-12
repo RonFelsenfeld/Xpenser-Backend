@@ -11,6 +11,7 @@ export const expenseService = {
   getById,
   add,
   update,
+  createDemoExpenses,
 }
 
 async function query(userId) {
@@ -90,5 +91,24 @@ async function update(expense, userId) {
   } catch (err) {
     logger.error(`Cannot update expense ${expense._id}`, err)
     throw err
+  }
+}
+
+function createDemoExpenses() {
+  const expense1 = _createDemoExpense('Running shoes', 360, 'other')
+  const expense2 = _createDemoExpense('Dinner with dad', 276, 'food')
+  const expense3 = _createDemoExpense('Gym subscription', 120, 'utilities')
+
+  return [expense1, expense2, expense3]
+}
+
+function _createDemoExpense(txt, amount, category) {
+  return {
+    _id: utilService.makeId(),
+    txt,
+    amount,
+    at: '',
+    category,
+    notes: '',
   }
 }
