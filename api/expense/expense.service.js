@@ -14,11 +14,19 @@ export const expenseService = {
   createDemoExpenses,
 }
 
-async function query(userId) {
+async function query(userId, filterByCriteria) {
   try {
     const collection = await dbService.getCollection('users')
-    const user = await collection.findOne({ _id: new ObjectId(userId) })
-    return user.expenses
+    let { expenses } = await collection.findOne({ _id: new ObjectId(userId) })
+
+    // ! Checking for filter criteria
+    const filterByValues = Object.values(filterByCriteria)
+
+    if (filterByValues.some(val => val)) {
+      expenses = _filterExpenses(expenses, filterByCriteria)
+    }
+
+    return expenses
   } catch (err) {
     logger.error('Cannot find expenses', err)
     throw err
@@ -86,12 +94,33 @@ async function update(expense, userId) {
       { $set: { 'expenses.$': expenseToSave } }
     )
 
-    console.log(`expenseToSave`, expenseToSave)
     return expenseToSave
   } catch (err) {
     logger.error(`Cannot update expense ${expense._id}`, err)
     throw err
   }
+}
+
+////////////////////////////////////////////////////
+
+function _filterExpenses(expenses, { txt, at, category }) {
+  let expensesToReturn = expenses.slice()
+
+  if (txt) {
+    const regExp = new RegExp(txt, 'i')
+    expensesToReturn = expensesToReturn.filter(e => regExp.test(e.txt))
+  }
+
+  if (at) {
+    const { from, to } = at
+    expensesToReturn = expensesToReturn.filter(e => e.at >= from && e.at <= to)
+  }
+
+  if (category) {
+    expensesToReturn = expensesToReturn.filter(e => e.category === category)
+  }
+
+  return expensesToReturn
 }
 
 function createDemoExpenses() {

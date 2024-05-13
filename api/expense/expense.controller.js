@@ -3,10 +3,17 @@ import { logger } from '../../services/logger.service.js'
 
 export async function getExpenses(req, res) {
   const { loggedInUser } = req
+  const { filterBy } = req.query
+
+  const filterByCriteria = {
+    txt: filterBy?.txt || '',
+    category: filterBy?.category || '',
+    at: filterBy?.at || null,
+  }
 
   try {
     logger.debug('Getting expenses')
-    const expenses = await expenseService.query(loggedInUser._id)
+    const expenses = await expenseService.query(loggedInUser._id, filterByCriteria)
     res.json(expenses)
   } catch (err) {
     logger.error('Failed to get expenses', err)
