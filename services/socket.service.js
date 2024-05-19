@@ -30,6 +30,7 @@ export function setupSocketAPI(server) {
 
   gIo.on('connection', socket => {
     logger.info(`New connected socket[id:${socket.id}]`)
+
     socket.on('disconnect', socket => {
       logger.info(`socket disconnected [id:${socket.id}]`)
     })
